@@ -1,14 +1,10 @@
 import pygame
 from pygame import gfxdraw
-import enum
 
-pygame.init()
 
-WINDOW_WIDTH = 812
-WINDOW_HEIGHT = 644
-gap_w = 28
-gap_h = 20
-radius = 42
+gap_w = 14
+gap_h = 10
+radius = 21
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
@@ -23,7 +19,7 @@ class Cell:
         self.col = col
         self.val = val
         self.x = (self.col + 1) * gap_w + radius * (1 + 2 * self.col)
-        self.y = (self.row + 1) * gap_h + radius * (1 + 2 * self.row)
+        self.y = (self.row + 1) * gap_h + radius * (1 + 2 * self.row) + 50
 
     def draw(self, window):
         gfxdraw.aacircle(window, self.x, self.y, radius, colour_codings[self.val])
