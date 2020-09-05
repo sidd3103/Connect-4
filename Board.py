@@ -108,6 +108,12 @@ class Board:
                 return i
         return -1
 
+    def reset(self):
+        for i in range(6):
+            for j in range(7):
+                self.board[i][j] = 0
+                self.cells[i][j].setVal(0)
+
     def invalid_move_message(self):
         """
         Method to blit invalid move error on screen
@@ -115,6 +121,7 @@ class Board:
         """
         m1 = font2.render("Invalid move. Try again.", True, black)
         self.window.blit(m1, (10, BOARD_HEIGHT + 20))
+
 
     def instructions(self, player):
         """
@@ -160,8 +167,7 @@ class Board:
                     reset = (e == pygame.K_r)
 
             if reset:
-                self.board = [[0 for j in range(7)] for i in range(6)]
-                self.cells = [[Cell(i, j, 0) for j in range(7)] for i in range(6)]
+                self.reset()
                 player = 1
                 reset = False
                 win = False
