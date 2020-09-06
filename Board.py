@@ -4,6 +4,7 @@ from Cell import colour_codings
 from Cell import gap_w
 from Cell import radius
 from pygame import gfxdraw
+import random
 
 pygame.init()
 
@@ -63,13 +64,13 @@ class Board:
         :return: bool
         """
         return self.check_direction(row, col, 0, 1, player, 0) or \
-            self.check_direction(row, col, 0, -1, player, 0) or \
-            self.check_direction(row, col, 1, 0, player, 0) or \
-            self.check_direction(row, col, -1, 0, player, 0) or \
-            self.check_direction(row, col, 1, 1, player, 0) or \
-            self.check_direction(row, col, 1, -1, player, 0) or \
-            self.check_direction(row, col, -1, -1, player, 0) or \
-            self.check_direction(row, col, -1, 1, player, 0)
+               self.check_direction(row, col, 0, -1, player, 0) or \
+               self.check_direction(row, col, 1, 0, player, 0) or \
+               self.check_direction(row, col, -1, 0, player, 0) or \
+               self.check_direction(row, col, 1, 1, player, 0) or \
+               self.check_direction(row, col, 1, -1, player, 0) or \
+               self.check_direction(row, col, -1, -1, player, 0) or \
+               self.check_direction(row, col, -1, 1, player, 0)
 
     def draw_cells(self):
         """
@@ -114,6 +115,45 @@ class Board:
                 self.board[i][j] = 0
                 self.cells[i][j].setVal(0)
 
+    def agent(self, player):
+        """
+        The AI agent who plays against the user. Return True if agent wins in the move else return False
+        :param player: Which player the agent is
+        :return: bool
+        """
+        # Find all columns which agent can choose
+        valid_cols = []
+        for col in range(7):
+            row = self.find_empty(col)
+            if row != -1:
+                valid_cols.append((row, col))
+
+        # See if agent has a winning move and if so, make that move and return True
+        for row, col in valid_cols:
+            self.board[row][col] = player
+            if self.check_if_win(row, col, player):
+                self.cells[row][col].setVal(player)
+                return True
+            else:
+                self.board[row][col] = 0
+
+        # See if opponent has a winning move in their next move and if so, block it.
+        for row, col in valid_cols:
+            opp = (player % 2) + 1
+            self.board[row][col] = opp
+            if self.check_if_win(row, col, opp):
+                self.board[row][col] = player
+                self.cells[row][col].setVal(player)
+                return False
+            else:
+                self.board[row][col] = 0
+
+        # Else make a random move.
+        r, c = random.choice(valid_cols)
+        self.board[r][c] = player
+        self.cells[r][c].setVal(player)
+        return False
+
     def invalid_move_message(self):
         """
         Method to blit invalid move error on screen
@@ -121,7 +161,6 @@ class Board:
         """
         m1 = font2.render("Invalid move. Try again.", True, black)
         self.window.blit(m1, (10, BOARD_HEIGHT + 20))
-
 
     def instructions(self, player):
         """
@@ -165,6 +204,12 @@ class Board:
                 if event.type == pygame.KEYDOWN:
                     e = event.key
                     reset = (e == pygame.K_r)
+
+            # Comment out this if block if you wanna play against another player.
+            if player == 2 and not win:
+                win = self.agent(player)
+                if not win:
+                    player = (player % 2) + 1
 
             if reset:
                 self.reset()
