@@ -36,5 +36,5 @@ class Cell:
         gfxdraw.aacircle(window, self.x, self.y, radius, colour_codings[self.val])
         gfxdraw.filled_circle(window, self.x, self.y, radius, colour_codings[self.val])
 
-    def setVal(self, val):
+    def set_val(self, val):
         self.val = val

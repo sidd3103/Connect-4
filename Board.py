@@ -39,19 +39,17 @@ class Board:
 
     def check_direction(self, row, col, row_vel, col_vel, player, count):
         """
-        Tail recursive method to check if player wins from board[row][col] moving in direction (row_vel, col_vel)
+        Tail recursive method to keep track of consecutive player cells.
+        :param count: consecutive numbers
         :param row: row
         :param col: column
         :param row_vel: direction of row movement (either 0,+1,-1)
         :param col_vel: direction of column movement (either 0,+1,-1)
         :param player: player
-        :return: bool
+        :return: int
         """
         if row >= 6 or col >= 7 or row < 0 or col < 0 or self.board[row][col] != player:
-            return False
-
-        if count == 3:
-            return True
+            return count
 
         return self.check_direction(row + row_vel, col + col_vel, row_vel, col_vel, player, count + 1)
 
@@ -63,14 +61,19 @@ class Board:
         :param player: player
         :return: bool
         """
-        return self.check_direction(row, col, 0, 1, player, 0) or \
-               self.check_direction(row, col, 0, -1, player, 0) or \
-               self.check_direction(row, col, 1, 0, player, 0) or \
-               self.check_direction(row, col, -1, 0, player, 0) or \
-               self.check_direction(row, col, 1, 1, player, 0) or \
-               self.check_direction(row, col, 1, -1, player, 0) or \
-               self.check_direction(row, col, -1, -1, player, 0) or \
-               self.check_direction(row, col, -1, 1, player, 0)
+        horizontal = self.check_direction(row, col, 0, 1, player, 0) \
+                     + self.check_direction(row, col, 0, -1, player, 0) - 1 >= 4
+
+        vertical = self.check_direction(row, col, 1, 0, player, 0) \
+                   + self.check_direction(row, col, -1, 0, player, 0) - 1 >= 4
+
+        diagonal_1 = self.check_direction(row, col, -1, 1, player, 0) \
+                     + self.check_direction(row, col, 1, -1, player, 0) - 1 >= 4
+
+        diagonal_2 = self.check_direction(row, col, 1, 1, player, 0) \
+                     + self.check_direction(row, col, -1, -1, player, 0) - 1 >= 4
+
+        return horizontal or vertical or diagonal_1 or diagonal_2
 
     def draw_cells(self):
         """
@@ -113,7 +116,7 @@ class Board:
         for i in range(6):
             for j in range(7):
                 self.board[i][j] = 0
-                self.cells[i][j].setVal(0)
+                self.cells[i][j].set_val(0)
 
     def agent(self, player):
         """
@@ -132,7 +135,7 @@ class Board:
         for row, col in valid_cols:
             self.board[row][col] = player
             if self.check_if_win(row, col, player):
-                self.cells[row][col].setVal(player)
+                self.cells[row][col].set_val(player)
                 return True
             else:
                 self.board[row][col] = 0
@@ -143,7 +146,7 @@ class Board:
             self.board[row][col] = opp
             if self.check_if_win(row, col, opp):
                 self.board[row][col] = player
-                self.cells[row][col].setVal(player)
+                self.cells[row][col].set_val(player)
                 return False
             else:
                 self.board[row][col] = 0
@@ -151,7 +154,7 @@ class Board:
         # Else make a random move.
         r, c = random.choice(valid_cols)
         self.board[r][c] = player
-        self.cells[r][c].setVal(player)
+        self.cells[r][c].set_val(player)
         return False
 
     def invalid_move_message(self):
@@ -224,7 +227,7 @@ class Board:
                 row = self.find_empty(column)
                 if row != -1:
                     self.board[row][column] = player
-                    self.cells[row][column].setVal(player)
+                    self.cells[row][column].set_val(player)
                     if self.check_if_win(row, column, player):
                         win = True
                     else:
